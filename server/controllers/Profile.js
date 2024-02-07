@@ -3,6 +3,7 @@
 const PROFILE = require("../models/Profile");
 const USER = require("../models/User");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
+const { convertSecondsToDuration } = require("../utils/secToDuration");
 require("dotenv").config();
 
 const updateProfile = async (req, res) => {
@@ -168,7 +169,6 @@ const updateDisplayPicture = async (req, res) => {
   }
 };
 
-//Todo
 const getEnrolledCourses = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -188,6 +188,54 @@ const getEnrolledCourses = async (req, res) => {
     // console.log(userDetails);
     userDetails = userDetails.toObject();
     // console.log(userDetails);
+    var SubsectionLength = 0;
+    for (var i = 0; i < userDetails.courses.length; i++) {
+      // Initialize total duration and subsection length variables
+      let totalDurationInSeconds = 0;
+      SubsectionLength = 0;
+
+      // Loop through each course content to calculate total duration
+      for (var j = 0; j < userDetails.courses[i].courseContent.length; j++) {
+        // Calculate total duration of all sub-sections within the course
+        totalDurationInSeconds += userDetails.courses[i].courseContent[
+          j
+        ].subSection.reduce(
+          (acc, curr) => acc + parseInt(curr.timeDuration), // Sum up time durations of all sub-sections
+          0
+        );
+
+        // Update total duration for the course
+        userDetails.courses[i].totalDuration = convertSecondsToDuration(
+          totalDurationInSeconds
+        );
+
+        // Calculate total number of subsections
+        SubsectionLength +=
+          userDetails.courses[i].courseContent[j].subSection.length;
+      }
+
+      // Find the progress of the user within the current course
+      let courseProgressCount = await CourseProgress.findOne({
+        courseID: userDetails.courses[i]._id,
+        userId: userId,
+      });
+
+      // Count the number of completed videos for the course
+      courseProgressCount = courseProgressCount?.completedVideos.length;
+
+      // Calculate progress percentage for the course
+      if (SubsectionLength === 0) {
+        // Handle the case when there are no subsections in the course
+        userDetails.courses[i].progressPercentage = 100;
+      } else {
+        // Calculate progress percentage by dividing completed videos by total subsections
+        const multiplier = Math.pow(10, 2);
+        userDetails.courses[i].progressPercentage =
+          Math.round(
+            (courseProgressCount / SubsectionLength) * 100 * multiplier
+          ) / multiplier;
+      }
+    }
 
     if (!userDetails) {
       return res.status(400).json({
