@@ -100,7 +100,7 @@ const Navbar = () => {
         <div className="flex gap-x-4 items-center">
           {user && user.accountType !== "Instructor" && (
             <Link to="/dashboard/cart" className="relative">
-              <CiShoppingCart />
+              <CiShoppingCart className="text-2xl text-richblack-100" />
               {totalItems > 0 && <span>{totalItems}</span>}
             </Link>
           )}
