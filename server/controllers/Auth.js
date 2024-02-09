@@ -55,6 +55,7 @@ const sendOtp = async (req, res) => {
 //signUp
 
 const signUp = async (req, res) => {
+  console.log("testing", req.body);
   try {
     //data fetch from req.body
     const {
@@ -66,16 +67,7 @@ const signUp = async (req, res) => {
       accountType,
       otp,
     } = req.body;
-    console.log(
-      "testing",
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
-      accountType,
-      otp
-    );
+
     //validata data
     if (
       !firstName ||

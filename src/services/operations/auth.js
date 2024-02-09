@@ -63,10 +63,10 @@ export function signUp(
         otp,
       });
       console.log("SignUp Api Response", response);
-      console.log(response.data.success);
       toast.success("SignUp successful");
       navigate("/login");
       if (!response.data.success) {
+        toast.error("User is registered successfully");
         throw new Error(response.data.message);
       }
     } catch (error) {

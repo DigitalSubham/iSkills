@@ -17,7 +17,8 @@ const VerifyEmail = () => {
     if (!signUpData) {
       navigate("/signup");
     }
-  }, [signUpData, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
@@ -31,7 +32,7 @@ const VerifyEmail = () => {
     } = signUpData;
 
     dispatch(
-      signUp({
+      signUp(
         accountType,
         firstName,
         lastName,
@@ -39,8 +40,8 @@ const VerifyEmail = () => {
         password,
         confirmPassword,
         otp,
-        navigate,
-      })
+        navigate
+      )
     );
   };
 
