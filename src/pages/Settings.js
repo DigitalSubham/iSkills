@@ -1,8 +1,8 @@
 import React from "react";
-import UpdatePersonalDetails from "../components/core/Setting/UpdatePersonalDetails";
-import UpdatePassword from "../components/core/Setting/UpdatePassword";
-import DeleteAccount from "../components/core/Setting/DeleteAccount";
-import UpdateDisplayPicture from "../components/core/Setting/UpdateDisplayPicture";
+import UpdatePersonalDetails from "../components/core/Dashboard/Setting/UpdatePersonalDetails";
+import UpdatePassword from "../components/core/Dashboard/Setting/UpdatePassword";
+import DeleteAccount from "../components/core/Dashboard/Setting/DeleteAccount";
+import UpdateDisplayPicture from "../components/core/Dashboard/Setting/UpdateDisplayPicture";
 
 const Settings = () => {
   return (
