@@ -29,12 +29,12 @@
     "url": "https://github.com/thepranaygupta/react-tailwind-css-starter-pack/issues"
   },
   "scripts": {
+    "start": "node server/index.js",
     "start:front": "react-scripts start",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "server": "cd server && npm run dev",
-    "dev": "concurrently -n \"client,server\" -c \"bgBlue,bgYellow\" \"npm start:front\" \"npm run server\"",
-    "start": "node server/index.js"
+    "dev": "concurrently -n \"client,server\" -c \"bgBlue,bgYellow\" \"npm start:front\" \"npm run server\""
   },
   "eslintConfig": {
     "extends": [
