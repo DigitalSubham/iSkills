@@ -1,5 +1,7 @@
 // in signup time we have created dummy profile we have to update only
 
+const COURSE = require("../models/Course");
+const COURSEPROGRESS = require("../models/CourseProgess");
 const PROFILE = require("../models/Profile");
 const USER = require("../models/User");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
@@ -76,21 +78,25 @@ const deleteAccount = async (req, res) => {
         message: "user not found",
       });
     }
-    //delete user profile
-    const profileId = userDetails.additionalDetails;
-    //Todo: add scheduling
-    await PROFILE.findByIdAndDelete({ _id: profileId });
-    //TOdo:  unenroll user from all enrolled courses(done on course model)
-
-    //delete user
-    //Todo: add scheduling
-    await USER.findByIdAndDelete({ _id: userId });
-
-    //return res
-    return res.status(200).json({
-      success: true,
-      message: "user account delete successfully",
+    // Delete Assosiated Profile with the User
+    await PROFILE.findByIdAndDelete({
+      _id: new mongoose.Types.ObjectId(userId.additionalDetails),
     });
+    //unenroll user from all enrolled courses(done on course model)
+    for (const courseId of USER.courses) {
+      await COURSE.findByIdAndUpdate(
+        courseId,
+        { $pull: { studentsEnrolled: id } },
+        { new: true }
+      );
+    }
+
+    // Now Delete User
+    await USER.findByIdAndDelete({ userId: userId });
+    res
+      .status(200)
+      .json({ success: true, message: "User deleted successfully" });
+    await COURSEPROGRESS.deleteMany({ userId: id });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({

@@ -63,45 +63,67 @@ const categoryPageDetails = async (req, res) => {
     const categoryId = req.body;
     //get courses according to categoryId
     const selectedCategoryCourses = await CATEGORY.findById(categoryId)
-      .populate("course")
+      .populate({
+        path: "course",
+        match: { status: "Published" },
+        populate: "ratingAndReviews",
+      })
       .exec();
     //validation
-    if (!selectedCategory) {
+    if (!selectedCategoryCourses) {
       return res.status(404).json({
         success: false,
         message: "No Courses",
       });
     }
-    //get courses from different category
-    const differentCategoryCourses = await CATEGORY.find({
+
+    // Handle the case when there are no courses
+    if (selectedCategoryCourses.course.length === 0) {
+      console.log("No courses found for the selected category.");
+      return res.status(404).json({
+        success: false,
+        message: "No courses found for the selected category.",
+      });
+    }
+
+    // Get courses for other categories
+    const categoriesExceptSelected = await CATEGORY.find({
       _id: { $ne: categoryId },
-    })
-      .populate("course")
+    });
+    let differentCategory = await CATEGORY.findOne(
+      categoriesExceptSelected[getRandomInt(categoriesExceptSelected.length)]
+        ._id
+    )
+      .populate({
+        path: "courses",
+        match: { status: "Published" },
+      })
       .exec();
+    //console.log("Different COURSE", differentCategory)
 
-    //Todo:get top selling courses
-    const topSellingCourses = await COURSE.aggregate([
-      {
-        $project: {
-          courseName: 1,
-          studentsEnrolledCount: { $size: "$studentsEnrolled" },
+    //get top selling courses
+    const allCategories = await CATEGORY.find()
+      .populate({
+        path: "courses",
+        match: { status: "Published" },
+        populate: {
+          path: "instructor",
         },
-      },
-      {
-        $sort: {
-          studentsEnrolledCount: -1,
-        },
-      },
-    ]);
-
-    console.log(topSellingCourses);
+      })
+      .exec();
+    const allCourses = allCategories.flatMap((category) => category.courses);
+    const mostSellingCourses = allCourses
+      .sort((a, b) => b.sold - a.sold)
+      .slice(0, 10);
+    // console.log("mostSellingCourses COURSE", mostSellingCourses)
 
     //return res
     return res.status(200).json({
       success: true,
       data: {
-        selectedCategoryCourses,
-        differentCategoryCourses,
+        selectedCategory,
+        differentCategory,
+        mostSellingCourses,
       },
     });
   } catch (error) {

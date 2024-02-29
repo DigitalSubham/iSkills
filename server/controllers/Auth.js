@@ -96,7 +96,7 @@ const signUp = async (req, res) => {
     if (checkUserPresent) {
       return res.status(401).json({
         success: false,
-        message: "User already registered, Please sign in to continue.",
+        message: "User already registered, Please sign up to continue.",
       });
     }
 
